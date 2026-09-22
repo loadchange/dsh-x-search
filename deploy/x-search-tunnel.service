@@ -1,0 +1,32 @@
+[Unit]
+Description=Cloudflare named tunnel for x-search (x-search.<zone> -> 127.0.0.1:31890)
+Documentation=https://github.com/loadchange/dsh-x-search
+After=network-online.target x-search.service
+Wants=network-online.target
+ConditionFileIsExecutable=/usr/bin/cloudflared
+ConditionPathExists=/etc/x-search-tunnel/token
+
+[Service]
+Type=notify
+NotifyAccess=main
+DynamicUser=yes
+# The tunnel token is a root-owned 0400 file handed to the dynamic user read-only via LoadCredential; it never shows in the process list.
+LoadCredential=tunnel-token:/etc/x-search-tunnel/token
+ExecStart=/usr/bin/cloudflared tunnel --no-autoupdate --protocol auto --metrics 127.0.0.1:20261 --loglevel info run --token-file %d/tunnel-token
+Restart=always
+RestartSec=10
+KillSignal=SIGINT
+TimeoutStopSec=15
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectControlGroups=true
+ProtectKernelTunables=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryMax=256M
+
+[Install]
+WantedBy=multi-user.target

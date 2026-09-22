@@ -1,0 +1,43 @@
+[Unit]
+Description=x-search (dsh plugin: X search with your own account; loopback only)
+Documentation=https://github.com/loadchange/dsh-x-search
+After=network-online.target
+Wants=network-online.target
+
+# Example layout for service user `dsh`: harness checkout /home/dsh/deepseek-harness, DSH_HOME /home/dsh/.dsh,
+# data dir /home/dsh/x-search. Change User=/Group= and every /home/dsh together.
+[Service]
+Type=simple
+User=dsh
+Group=dsh
+WorkingDirectory=/home/dsh/deepseek-harness
+Environment=DSH_HOME=/home/dsh/.dsh
+Environment=DSH_TELEMETRY_DISABLED=1
+# If node is not on the system PATH (nvm), prepend its bin directory here.
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+# Host-specific model base URLs go in a drop-in x-search.service.d/host.conf, not in the repo.
+# Heap cap is for node only; Chromium is a child process (roughly 300–500 MB on its own).
+Environment=NODE_OPTIONS=--max-old-space-size=320
+Environment=PLAYWRIGHT_BROWSERS_PATH=/home/dsh/.cache/ms-playwright
+# Secrets (model key, Bearer token) live only in this 0600 file; the profile config names variables, never values.
+EnvironmentFile=-/home/dsh/x-search/env
+ExecStart=/usr/bin/env node apps/cli/lib/bin.js --profile x-search
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectControlGroups=true
+ProtectKernelTunables=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+# Data dir (cookies, browser profile, rate counters) is outside .dsh; the profile's node_modules inside .dsh must stay writable.
+ReadWritePaths=/home/dsh/.dsh /home/dsh/x-search
+MemoryHigh=900M
+MemoryMax=1200M
+Nice=10
+KillSignal=SIGTERM
+TimeoutStopSec=30
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

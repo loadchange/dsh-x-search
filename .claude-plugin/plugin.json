@@ -1,0 +1,10 @@
+{
+  "name": "dsh-x",
+  "description": "Search X (Twitter) through your own dsh-x-search endpoint: posts, accounts, threads, and \"what does this post mean\" answered on the server with its images already read.",
+  "version": "0.2.0",
+  "author": { "name": "LoadChange" },
+  "homepage": "https://github.com/loadchange/dsh-x-search",
+  "repository": "https://github.com/loadchange/dsh-x-search",
+  "license": "MIT",
+  "keywords": ["x", "twitter", "search", "dsh"]
+}

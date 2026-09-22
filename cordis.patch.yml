@@ -1,0 +1,38 @@
+# dsh bundle layer: once a profile lists this package in dsh.profile.bundles, the host merges this layer first,
+# then the profile's own cordis.patch.yml on top (by id; last write wins).
+#
+# Safe defaults only, no host paths. Deployments override dataDir / cookiesFile / port / limits in the
+# profile overlay under `- id: x-search` (see deploy/README.md). Credentials never go in config files:
+# cookies live in the 0600 file named by cookiesFile, model keys come from the unit's EnvironmentFile.
+- insert:
+    - id: x-search
+      name: dsh-x-search
+      config:
+        enabled: true
+        # Empty = $DSH_HOME/x-search. In production move it outside .dsh (the whole .dsh tree is watched).
+        dataDir: ''
+        cookiesFile: ''
+        webEnabled: true
+        webHost: 127.0.0.1
+        webPort: 31890
+        browser:
+          headless: true
+          locale: en-US
+          # Empty = system time zone. Set it in the overlay to the zone of your egress IP and never change it.
+          timezoneId: ''
+          idleCloseMs: 600000
+        # Account safety valve. Do not raise.
+        limits:
+          perWindow: 40
+          windowMs: 900000
+          perDay: 600
+          minSpacingMs: 1500
+          maxPostsPerRequest: 80
+          maxQueriesPerRequest: 5
+        llm:
+          enabled: true
+          planMaxQueries: 3
+          maxTokens: 4000
+          timeoutMs: 90000
+        # Only while checking the parser on first deploy; clear it afterwards or raw responses fill the disk.
+        debugDumpDir: ''
